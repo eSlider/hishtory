@@ -60,21 +60,26 @@ func TestLiveClaudeApi(t *testing.T) {
 func TestNormalizeAISuggestion(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
-		in, want string
+		name, in, want string
 	}{
-		{"ls -la", "ls -la"},
-		{"  ls -la  ", "ls -la"},
-		{"`ls -la`", "ls -la"},
-		{"```ls -la```", "ls -la"},
-		{"`ls -la`,", "ls -la"},
-		{"ls -la'", "ls -la"},
-		{`ls -la"`, "ls -la"},
-		{"ls -la,,", "ls -la"},
-		{"ls -la;\n", "ls -la"},
-		{"\n```\nfind .\n```\n", "find ."},
+		{"plain", "ls -la", "ls -la"},
+		{"spaces", "  ls -la  ", "ls -la"},
+		{"backticks", "`ls -la`", "ls -la"},
+		{"fence_only", "```ls -la```", "ls -la"},
+		{"comma", "`ls -la`,", "ls -la"},
+		{"single_quote", "ls -la'", "ls -la"},
+		{"double_quote", `ls -la"`, "ls -la"},
+		{"commas", "ls -la,,", "ls -la"},
+		{"semicolon", "ls -la;\n", "ls -la"},
+		{"fence_multiline", "\n```\nfind .\n```\n", "find ."},
+		{"bash_lang", "```bash\nls -la\n```", "ls -la"},
+		{"sh_lang", "```sh\ndir\n```", "dir"},
+		{"shell_lang", "```shell\npwd\n```", "pwd"},
+		{"bash_crlf", "```bash\r\nls\r\n```", "ls"},
+		{"zsh_lang", "```zsh\necho ok\n```", "echo ok"},
 	}
 	for _, tc := range tests {
-		t.Run(tc.in, func(t *testing.T) {
+		t.Run(tc.name, func(t *testing.T) {
 			got := NormalizeAISuggestion(tc.in)
 			require.Equal(t, tc.want, got)
 		})

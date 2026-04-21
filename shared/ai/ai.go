@@ -71,9 +71,61 @@ type TestOnlyOverrideAiSuggestionRequest struct {
 
 var TestOnlyOverrideAiSuggestions map[string][]string = make(map[string][]string)
 
-// NormalizeAISuggestion trims leading/trailing whitespace and common markdown or
-// punctuation junk models append around shell commands (quotes, commas, backticks).
+// markdownFenceLangs is the set of common info-string tokens after an opening ``` fence.
+var markdownFenceLangs = map[string]struct{}{
+	"bash": {}, "sh": {}, "shell": {}, "zsh": {}, "fish": {}, "nu": {}, "xonsh": {}, "elvish": {},
+	"pwsh": {}, "powershell": {}, "posh": {}, "cmd": {}, "bat": {}, "batch": {},
+	"text": {}, "plaintext": {}, "console": {}, "terminal": {}, "unix": {}, "linux": {},
+}
+
+func isMarkdownFenceLang(line string) bool {
+	line = strings.TrimSpace(line)
+	if line == "" {
+		return true
+	}
+	_, ok := markdownFenceLangs[strings.ToLower(line)]
+	return ok
+}
+
+// stripLeadingMarkdownFence removes an opening ``` fence and optional language line
+// (e.g. ```bash) before other trimming.
+func stripLeadingMarkdownFence(s string) string {
+	s = strings.TrimFunc(s, unicode.IsSpace)
+	for strings.HasPrefix(s, "```") {
+		s = strings.TrimPrefix(s, "```")
+		s = strings.TrimLeft(s, " \t\r\n")
+		first, rest, ok := splitFirstLine(s)
+		if !ok {
+			break
+		}
+		if isMarkdownFenceLang(first) {
+			s = strings.TrimLeft(rest, " \t\r\n")
+			continue
+		}
+		// Opening ``` was removed but the first line is not a known fence language; keep remainder
+		// for the generic backtick / suffix trimmer (e.g. ```ls``` on one line).
+		break
+	}
+	return strings.TrimFunc(s, unicode.IsSpace)
+}
+
+func splitFirstLine(s string) (first, rest string, ok bool) {
+	if i := strings.IndexByte(s, '\n'); i >= 0 {
+		first = s[:i]
+		rest = s[i+1:]
+		first = strings.TrimSuffix(first, "\r")
+		return first, rest, true
+	}
+	if i := strings.IndexByte(s, '\r'); i >= 0 {
+		return s[:i], s[i+1:], true
+	}
+	return "", s, false
+}
+
+// NormalizeAISuggestion strips opening markdown fences (e.g. ```bash), then trims
+// leading/trailing whitespace and common punctuation or backticks around shell commands.
 func NormalizeAISuggestion(s string) string {
+	s = stripLeadingMarkdownFence(s)
 	s = strings.TrimFunc(s, unicode.IsSpace)
 	for {
 		before := s
