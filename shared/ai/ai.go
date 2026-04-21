@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 
 	"github.com/ddworken/hishtory/client/hctx"
 	"github.com/ddworken/hishtory/client/lib"
@@ -87,11 +88,22 @@ func isMarkdownFenceLang(line string) bool {
 	return ok
 }
 
-// stripLeadingMarkdownFence removes an opening ``` fence and optional language line
-// (e.g. ```bash) before other trimming.
+// stripLeadingMarkdownFence removes ``` fences: closed ```...``` blocks (optionally with a
+// language line like ```bash) or an opening ``` plus a language line when there is no closing fence yet.
 func stripLeadingMarkdownFence(s string) string {
 	s = strings.TrimFunc(s, unicode.IsSpace)
 	for strings.HasPrefix(s, "```") {
+		s = strings.TrimFunc(s, unicode.IsSpace)
+		if strings.HasSuffix(s, "```") && len(s) >= 6 {
+			inner := strings.TrimFunc(s[3:len(s)-3], unicode.IsSpace)
+			first, rest, ok := splitFirstLine(inner)
+			if ok && isMarkdownFenceLang(first) {
+				s = strings.TrimLeft(rest, " \t\r\n")
+				continue
+			}
+			s = inner
+			continue
+		}
 		s = strings.TrimPrefix(s, "```")
 		s = strings.TrimLeft(s, " \t\r\n")
 		first, rest, ok := splitFirstLine(s)
@@ -102,8 +114,6 @@ func stripLeadingMarkdownFence(s string) string {
 			s = strings.TrimLeft(rest, " \t\r\n")
 			continue
 		}
-		// Opening ``` was removed but the first line is not a known fence language; keep remainder
-		// for the generic backtick / suffix trimmer (e.g. ```ls``` on one line).
 		break
 	}
 	return strings.TrimFunc(s, unicode.IsSpace)
@@ -122,20 +132,44 @@ func splitFirstLine(s string) (first, rest string, ok bool) {
 	return "", s, false
 }
 
+// stripBalancedOuterChar removes one layer of leading+trailing r only when both ends match.
+func stripBalancedOuterChar(s string, r rune) string {
+	s = strings.TrimFunc(s, unicode.IsSpace)
+	first, fw := utf8.DecodeRuneInString(s)
+	last, lw := utf8.DecodeLastRuneInString(s)
+	if first == utf8.RuneError || last == utf8.RuneError || fw+lw >= len(s) {
+		return s
+	}
+	if first == r && last == r {
+		return strings.TrimFunc(s[fw:len(s)-lw], unicode.IsSpace)
+	}
+	return s
+}
+
 // NormalizeAISuggestion strips opening markdown fences (e.g. ```bash), then trims
-// leading/trailing whitespace and common punctuation or backticks around shell commands.
+// leading/trailing whitespace. Trailing `,` / `;` are removed; `"`, `'`, and `` ` ``
+// are only stripped when they wrap the whole string (same char at start and end).
 func NormalizeAISuggestion(s string) string {
 	s = stripLeadingMarkdownFence(s)
 	s = strings.TrimFunc(s, unicode.IsSpace)
 	for {
 		before := s
 		s = strings.TrimFunc(s, unicode.IsSpace)
-		s = strings.TrimPrefix(s, "```")
-		s = strings.TrimSuffix(s, "```")
-		s = strings.TrimPrefix(s, "`")
-		s = strings.TrimSuffix(s, "`")
-		s = strings.TrimSuffix(s, "'")
-		s = strings.TrimSuffix(s, `"`)
+		s2 := stripBalancedOuterChar(s, '`')
+		if s2 != s {
+			s = s2
+			continue
+		}
+		s2 = stripBalancedOuterChar(s, '\'')
+		if s2 != s {
+			s = s2
+			continue
+		}
+		s2 = stripBalancedOuterChar(s, '"')
+		if s2 != s {
+			s = s2
+			continue
+		}
 		s = strings.TrimSuffix(s, ",")
 		s = strings.TrimSuffix(s, ";")
 		s = strings.TrimFunc(s, unicode.IsSpace)
