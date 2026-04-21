@@ -2285,10 +2285,14 @@ func testConfigGetSet(t *testing.T, tester shellTester) {
 		t.Fatalf("unexpected config-get output: %#v", out)
 	}
 
-	// For OpenAI endpoints
+	// Default AI endpoint (Ollama when no API keys)
 	out = tester.RunInteractiveShell(t, `hishtory config-get ai-completion-endpoint`)
-	if out != "https://api.openai.com/v1/chat/completions\n" {
+	if out != "http://localhost:11434/api/generate\n" {
 		t.Fatalf("unexpected config-get output: %#v", out)
+	}
+	out = tester.RunInteractiveShell(t, `hishtory config-get ai-completion-backend`)
+	if out != "ollama\n" {
+		t.Fatalf("unexpected config-get ai-completion-backend: %#v", out)
 	}
 	tester.RunInteractiveShell(t, `hishtory config-set ai-completion-endpoint https://example.com/foo/bar`)
 	out = tester.RunInteractiveShell(t, `hishtory config-get ai-completion-endpoint`)
@@ -3007,6 +3011,8 @@ func testTui_ai(t *testing.T) {
 	os.Setenv("ANTHROPIC_API_KEY", "")
 	os.Setenv("AI_API_KEY", "")
 	tester, _, _ := setupTestTui(t, Online)
+	tester.RunInteractiveShell(t, `hishtory config-set ai-completion-backend chat`)
+	tester.RunInteractiveShell(t, `hishtory config-set ai-completion-endpoint https://api.openai.com/v1/chat/completions`)
 	req, err := json.Marshal(
 		ai.TestOnlyOverrideAiSuggestionRequest{Query: "myQuery", Suggestions: []string{"result 1", "result 2", "longer result 3"}},
 	)
