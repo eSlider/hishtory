@@ -68,7 +68,7 @@ If you are ever trying to figure out a shell command and searching your history 
 
 If you would like to:
 * Disable this, you can run `hishtory config-set ai-completion false`
-* Use the default **local Ollama** integration (no API keys): ensure [Ollama](https://ollama.com/) is running and pull the default model, e.g. `ollama pull gemma3:1b`. Suggestions use `http://localhost:11434/api/generate` by default (override with `hishtory config-set ai-completion-endpoint`).
+* Use the default **local Ollama** integration (no API keys): ensure [Ollama](https://ollama.com/) is running and pull the default model, e.g. `ollama pull eslider/bonsai-1.7b`. Suggestions use `http://localhost:11434/api/generate` by default (override with `hishtory config-set ai-completion-endpoint`).
 * Use your own **OpenAI** or **Anthropic** key so queries go **directly** to the provider (not through the hiSHtory server), set `export OPENAI_API_KEY='...'` or `export ANTHROPIC_API_KEY='...'`.
 * With **no API keys**, use the hiSHtory-hosted proxy instead of local Ollama: `hishtory config-set ai-completion-backend chat` and keep the default OpenAI chat URL (`hishtory config-set ai-completion-endpoint https://api.openai.com/v1/chat/completions` if needed).
 * Switch explicitly to Ollama even when keys exist: `hishtory config-set ai-completion-backend ollama`. Return to automatic behavior (no keys → Ollama, keys → direct chat API): `hishtory config-set ai-completion-backend auto`.

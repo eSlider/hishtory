@@ -8,7 +8,7 @@ import (
 
 const (
 	DefaultOllamaGenerateEndpoint = "http://localhost:11434/api/generate"
-	DefaultOllamaModel            = "gemma3:1b"
+	DefaultOllamaModel            = "eslider/bonsai-1.7b"
 	AiCompletionBackendChat       = "chat"
 	AiCompletionBackendOllama     = "ollama"
 )

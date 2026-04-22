@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ddworken/hishtory/shared"
 	"github.com/stretchr/testify/require"
 )
 
@@ -100,11 +101,11 @@ func TestOllamaGenerateNonStreaming(t *testing.T) {
 		require.Equal(t, http.MethodPost, r.Method)
 		var body ollamaGenerateRequest
 		require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
-		require.Equal(t, "gemma3:1b", body.Model)
+		require.Equal(t, shared.DefaultOllamaModel, body.Model)
 		require.False(t, body.Stream)
 		require.Contains(t, body.Prompt, "list files")
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"model":"gemma3:1b","response":"ls -la","done":true}`))
+		_, _ = w.Write([]byte(`{"model":"` + shared.DefaultOllamaModel + `","response":"ls -la","done":true}`))
 	}))
 	defer srv.Close()
 
@@ -134,7 +135,7 @@ func TestOllamaGenerateParallelCompletions(t *testing.T) {
 //	OLLAMA_LIVE_TEST=1 go test ./shared/ai/... -run TestLiveOllamaGenerate -count=1
 //
 // Optional: OLLAMA_TEST_ENDPOINT (default http://localhost:11434/api/generate), OLLAMA_LIVE_MODEL (model name override).
-// Ensure the model is pulled first, e.g. ollama pull gemma3:1b
+// Ensure the model is pulled first, e.g. ollama pull eslider/bonsai-1.7b
 func TestLiveOllamaGenerate(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping live Ollama test in -short mode")
