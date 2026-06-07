@@ -149,7 +149,7 @@ func MakeContext() context.Context {
 func GetConf(ctx context.Context) *ClientConfig {
 	v := ctx.Value(ConfigCtxKey)
 	if v != nil {
-		return (v.(*ClientConfig))
+		return v.(*ClientConfig)
 	}
 	panic(fmt.Errorf("failed to find config in ctx"))
 }

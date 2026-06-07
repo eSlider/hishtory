@@ -147,7 +147,7 @@ func stripBalancedOuterChar(s string, r rune) string {
 }
 
 // NormalizeAISuggestion strips opening markdown fences (e.g. ```bash), then trims
-// leading/trailing whitespace. Trailing `,` / `;` are removed; `"`, `'`, and `` ` ``
+// leading/trailing whitespace. Trailing `,` / `;` are removed; `"`, `'`, and “ ` “
 // are only stripped when they wrap the whole string (same char at start and end).
 func NormalizeAISuggestion(s string) string {
 	s = stripLeadingMarkdownFence(s)
@@ -508,14 +508,14 @@ func makeSingleOllamaCall(apiEndpoint, model, prompt string) (string, error) {
 		return "", fmt.Errorf("failed to read Ollama API response: %w", err)
 	}
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("Ollama API returned status %d, body=%#v", resp.StatusCode, string(bodyText))
+		return "", fmt.Errorf("ollama API returned status %d, body=%#v", resp.StatusCode, string(bodyText))
 	}
 	var apiResp ollamaGenerateResponse
 	if err := json.Unmarshal(bodyText, &apiResp); err != nil {
 		return "", fmt.Errorf("failed to parse Ollama API response=%#v: %w", string(bodyText), err)
 	}
 	if apiResp.Response == "" {
-		return "", fmt.Errorf("Ollama API returned empty response, body=%#v", string(bodyText))
+		return "", fmt.Errorf("ollama API returned empty response, body=%#v", string(bodyText))
 	}
 	return NormalizeAISuggestion(apiResp.Response), nil
 }
@@ -589,7 +589,7 @@ func GetAiSuggestionsViaOllama(apiEndpoint, query, shellName, osName, overridden
 	if norm := NormalizeAISuggestion(text); norm != "" {
 		return []string{norm}, OpenAiUsage{}, nil
 	}
-	return nil, OpenAiUsage{}, fmt.Errorf("Ollama returned only whitespace or punctuation after normalization")
+	return nil, OpenAiUsage{}, fmt.Errorf("ollama returned only whitespace or punctuation after normalization")
 }
 
 type AiSuggestionRequest struct {

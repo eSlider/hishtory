@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/ddworken/hishtory/shared"
+
 	"github.com/stretchr/testify/require"
 )
 

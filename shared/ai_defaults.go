@@ -9,10 +9,10 @@ import (
 const (
 	DefaultOllamaGenerateEndpoint = "http://localhost:11434/api/generate"
 	DefaultOllamaModel            = "eslider/bonsai-1.7b"
-	DefaultGeminiModel              = "gemini-3.5-flash"
-	AiCompletionBackendChat         = "chat"
-	AiCompletionBackendOllama       = "ollama"
-	AiCompletionBackendGemini       = "gemini"
+	DefaultGeminiModel            = "gemini-3.5-flash"
+	AiCompletionBackendChat       = "chat"
+	AiCompletionBackendOllama     = "ollama"
+	AiCompletionBackendGemini     = "gemini"
 )
 
 // HasAiAPIKeys reports whether any supported cloud AI API key is set in the environment.

@@ -16,6 +16,7 @@ import (
 	"github.com/ddworken/hishtory/client/hctx"
 	"github.com/ddworken/hishtory/client/lib"
 	"github.com/ddworken/hishtory/shared"
+
 	"github.com/google/uuid"
 )
 
@@ -23,7 +24,7 @@ const (
 	DefaultGeminiBL    = "boq_assistant-bard-web-server_20260525.09_p0"
 	DefaultGeminiModel = shared.DefaultGeminiModel
 
-	geminiRetryAttempts   = 3
+	geminiRetryAttempts     = 3
 	geminiRetryDelaySec     = 2
 	geminiRequestTimeoutSec = 180
 )
@@ -38,13 +39,13 @@ type geminiModelConfig struct {
 }
 
 var geminiModels = map[string]geminiModelConfig{
-	"gemini-3.5-flash":              {mode: 1, think: 4},
-	"gemini-3.5-flash-thinking":     {mode: 2, think: 0},
-	"gemini-3.1-pro":                {mode: 3, think: 4},
-	"gemini-3.1-pro-enhanced":       {mode: 3, think: 4, extra: map[int]any{31: 2, 80: 3}},
-	"gemini-auto":                   {mode: 4, think: 4},
+	"gemini-3.5-flash":               {mode: 1, think: 4},
+	"gemini-3.5-flash-thinking":      {mode: 2, think: 0},
+	"gemini-3.1-pro":                 {mode: 3, think: 4},
+	"gemini-3.1-pro-enhanced":        {mode: 3, think: 4, extra: map[int]any{31: 2, 80: 3}},
+	"gemini-auto":                    {mode: 4, think: 4},
 	"gemini-3.5-flash-thinking-lite": {mode: 5, think: 0},
-	"gemini-flash-lite":             {mode: 6, think: 4},
+	"gemini-flash-lite":              {mode: 6, think: 4},
 }
 
 var (
@@ -336,7 +337,7 @@ func makeSingleGeminiCall(prompt string, modelID, thinkMode int, extra map[int]a
 			return "", lastErr
 		}
 		if resp.StatusCode != http.StatusOK {
-			lastErr = fmt.Errorf("Gemini web API returned status %d, body=%#v", resp.StatusCode, string(bodyText))
+			lastErr = fmt.Errorf("gemini web API returned status %d, body=%#v", resp.StatusCode, string(bodyText))
 			if attempt < geminiRetryAttempts-1 {
 				time.Sleep(geminiRetryDelaySec * time.Second)
 				continue
@@ -346,7 +347,7 @@ func makeSingleGeminiCall(prompt string, modelID, thinkMode int, extra map[int]a
 
 		text := extractGeminiResponseText(string(bodyText))
 		if text == "" {
-			lastErr = fmt.Errorf("Gemini web API returned empty response, body=%#v", string(bodyText))
+			lastErr = fmt.Errorf("gemini web API returned empty response, body=%#v", string(bodyText))
 			if attempt < geminiRetryAttempts-1 {
 				time.Sleep(geminiRetryDelaySec * time.Second)
 				continue
@@ -442,5 +443,5 @@ func GetAiSuggestionsViaGeminiWeb(query, shellName, osName, overriddenModel stri
 	if norm := NormalizeAISuggestion(text); norm != "" {
 		return []string{norm}, OpenAiUsage{}, nil
 	}
-	return nil, OpenAiUsage{}, fmt.Errorf("Gemini returned only whitespace or punctuation after normalization")
+	return nil, OpenAiUsage{}, fmt.Errorf("gemini returned only whitespace or punctuation after normalization")
 }
