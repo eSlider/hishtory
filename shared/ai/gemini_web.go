@@ -50,7 +50,7 @@ var geminiModels = map[string]geminiModelConfig{
 
 var (
 	geminiCodeBlockRe   = regexp.MustCompile("(?s)```(?:python|javascript|text)\\?code_(?:reference|stdout)&code_event_index=\\d+\\n.*?```\\n?")
-	geminiCardContentRe = regexp.MustCompile(`http://googleusercontent\.com/card_content/\d+\n?`)
+	geminiCardContentRe = regexp.MustCompile(`^http://googleusercontent\.com/card_content/\d+\n?$`)
 )
 
 func resolveGeminiModel(modelName string) (name string, modeID, thinkMode int, extra map[int]any, err error) {
