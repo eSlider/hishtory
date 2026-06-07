@@ -92,10 +92,21 @@ func GetAiSuggestions(ctx context.Context, shellName, query string, numberComple
 		return GetAiSuggestionsViaHishtoryApi(ctx, shellName, augmented, numberCompletions)
 	}
 
-	// Ollama: forced backend, endpoint is Ollama /api/generate (even if cloud keys exist), or auto with no API keys.
+	// Gemini: forced backend, or auto with no API keys (default).
+	if cfg.AiCompletionBackend == shared.AiCompletionBackendGemini ||
+		(!hasKeys && cfg.AiCompletionBackend != shared.AiCompletionBackendChat &&
+			cfg.AiCompletionBackend != shared.AiCompletionBackendOllama) {
+		modelOverride := os.Getenv("AI_API_MODEL")
+		if modelOverride == "" {
+			modelOverride = os.Getenv("GEMINI_MODEL")
+		}
+		suggestions, _, err := ai.GetAiSuggestionsViaGeminiWeb(augmented, shellName, getOsName(), modelOverride, numberCompletions)
+		return suggestions, err
+	}
+
+	// Ollama: forced backend or endpoint is Ollama /api/generate.
 	if cfg.AiCompletionBackend == shared.AiCompletionBackendOllama ||
-		shared.IsOllamaGenerateAPIEndpoint(endpoint) ||
-		(!hasKeys && cfg.AiCompletionBackend != shared.AiCompletionBackendChat) {
+		shared.IsOllamaGenerateAPIEndpoint(endpoint) {
 		suggestions, _, err := ai.GetAiSuggestionsViaOllama(endpoint, augmented, shellName, getOsName(), "", numberCompletions)
 		return suggestions, err
 	}

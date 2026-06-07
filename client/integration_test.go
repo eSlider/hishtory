@@ -2285,13 +2285,13 @@ func testConfigGetSet(t *testing.T, tester shellTester) {
 		t.Fatalf("unexpected config-get output: %#v", out)
 	}
 
-	// Default AI endpoint (Ollama when no API keys)
+	// Default AI backend (Gemini web when no API keys)
 	out = tester.RunInteractiveShell(t, `hishtory config-get ai-completion-endpoint`)
-	if out != "http://localhost:11434/api/generate\n" {
+	if out != "\n" {
 		t.Fatalf("unexpected config-get output: %#v", out)
 	}
 	out = tester.RunInteractiveShell(t, `hishtory config-get ai-completion-backend`)
-	if out != "ollama\n" {
+	if out != "gemini\n" {
 		t.Fatalf("unexpected config-get ai-completion-backend: %#v", out)
 	}
 	tester.RunInteractiveShell(t, `hishtory config-set ai-completion-endpoint https://example.com/foo/bar`)

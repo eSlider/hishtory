@@ -93,7 +93,7 @@ var setDefaultFilterCommand = &cobra.Command{
 var setEnableAiCompletionCmd = &cobra.Command{
 	Use:   "ai-completion",
 	Short: "Enable AI completion for searches starting with '?'",
-	Long: "Without API keys, AI completion uses a local Ollama server by default. With `ai-completion-backend chat` and no keys, " +
+	Long: "Without API keys, AI completion uses Gemini web by default (no API key, requires network access to gemini.google.com). With `ai-completion-backend chat` and no keys, " +
 		"requests go through the shared hiSHtory backend (not logged, but avoid sensitive data). With your own API keys, requests go directly to the provider.",
 	Args:      cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
 	ValidArgs: []string{"true", "false"},
@@ -268,11 +268,11 @@ var setAiCompletionEndpoint = &cobra.Command{
 
 var setAiCompletionBackend = &cobra.Command{
 	Use:   "ai-completion-backend",
-	Short: "AI integration: ollama (local), chat (OpenAI-compatible / hiSHtory proxy when no keys), or auto (default)",
-	Long: "Values: ollama (always use Ollama at ai-completion-endpoint), chat (OpenAI-compatible; with no API keys and default cloud URLs, use hiSHtory proxy), " +
-		"auto (clear this setting: no keys -> Ollama, keys -> direct chat API).",
+	Short: "AI integration: gemini (default), ollama (local), chat (OpenAI-compatible / hiSHtory proxy when no keys), or auto",
+	Long: "Values: gemini (Gemini web, no API key), ollama (always use Ollama at ai-completion-endpoint), chat (OpenAI-compatible; with no API keys and default cloud URLs, use hiSHtory proxy), " +
+		"auto (clear this setting: no keys -> Gemini web, keys -> direct chat API).",
 	Args:      cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
-	ValidArgs: []string{shared.AiCompletionBackendOllama, shared.AiCompletionBackendChat, "auto"},
+	ValidArgs: []string{shared.AiCompletionBackendGemini, shared.AiCompletionBackendOllama, shared.AiCompletionBackendChat, "auto"},
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := hctx.MakeContext()
 		config := hctx.GetConf(ctx)

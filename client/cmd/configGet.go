@@ -76,7 +76,7 @@ var getFilterWhitespacePrefixCmd = &cobra.Command{
 var getEnableAiCompletion = &cobra.Command{
 	Use:   "ai-completion",
 	Short: "Enable AI completion for searches starting with '?'",
-	Long: "Without API keys, AI completion defaults to local Ollama. With `ai-completion-backend chat` and no keys, requests use the hiSHtory backend. " +
+	Long: "Without API keys, AI completion defaults to Gemini web (no API key). With `ai-completion-backend chat` and no keys, requests use the hiSHtory backend. " +
 		"See `ai-completion-backend` and `ai-completion-endpoint`.",
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := hctx.MakeContext()
@@ -181,7 +181,7 @@ var getAiCompletionEndpoint = &cobra.Command{
 
 var getAiCompletionBackend = &cobra.Command{
 	Use:   "ai-completion-backend",
-	Short: "AI backend: empty (auto), ollama, or chat — see `hishtory config-set ai-completion-backend --help`",
+	Short: "AI backend: empty (auto), gemini, ollama, or chat — see `hishtory config-set ai-completion-backend --help`",
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := hctx.MakeContext()
 		config := hctx.GetConf(ctx)

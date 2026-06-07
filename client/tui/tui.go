@@ -483,13 +483,15 @@ func renderNullableTable(m model, helpText string) string {
 func aiSuggestionSourceLabel(ctx context.Context) string {
 	c := hctx.GetConf(ctx)
 	switch c.AiCompletionBackend {
+	case shared.AiCompletionBackendGemini:
+		return "Gemini"
 	case shared.AiCompletionBackendOllama:
 		return "Ollama"
 	case shared.AiCompletionBackendChat:
 		return "AI"
 	default:
 		if !shared.HasAiAPIKeys() {
-			return "Ollama"
+			return "Gemini"
 		}
 		return "AI"
 	}

@@ -27,8 +27,8 @@ Full Config:
 	    selectedbackground: '#3300ff'
 	    bordercolor: '#585858'
 	defaultfilter: ""
-	aicompletionbackend: ollama
-	aicompletionendpoint: http://localhost:11434/api/generate
+	aicompletionbackend: gemini
+	aicompletionendpoint: ""
 	keybindings:
 	    up:
 	        - up
