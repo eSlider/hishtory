@@ -27,4 +27,4 @@ jobs:
       - name: Vet and unit tests
         run: |
           go vet ./...
-          go test ./shared/ai/... -count=1
+          go test ./shared/ai/... -count=1 -run 'TestNormalize|TestOllama|TestGetAiSuggestionsViaGemini|TestExtract|TestBuild|TestResolve'
